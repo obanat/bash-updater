@@ -8,6 +8,8 @@ The script uses the YDNS API v1 (dyn-compatible).
 
 Available options are:
 
+  -f             Specify ipv6 perfix
+
   -h             Display usage
   
   -H HOST        YDNS host to update
@@ -22,6 +24,12 @@ Available options are:
   
   -V             Enable verbose output
   
-  -4             use ipv4   (new add)
-  
-  -6             use ipv6   (new add)
+
+
+
+## 说明
+增加了-f 参数，用于指定过滤的ipv6前缀，用法
+
+./update.sh -f 2409* -i pppoe-wan -V
+
+上述脚本会将pppoe-wan接口中匹配2409开头的ipv6地址，更新到服务器上
