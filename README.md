@@ -4,35 +4,15 @@ This repository contains the bash updater script which can be used on *NIX-like 
 
 The script uses the YDNS API v1 (dyn-compatible).
 
-## Installation
+## usage
 
-First, ensure that your host has [curl](http://curl.haxx.se) installed.
-
-1. Check out the source code (updater.sh)
-2. Place it into desired place and make it executable (`chmod +x updater.sh`)
-3. Edit the script and update the user and host information to fit your configuration
-4. Run the script (either by single call or set up a cronjob to run it periodically)
-
-## Crontab Setup
-
-To run this script every 15 minutes using `crontab`, add the following line to your crontab list:
-
-```bash
-*/15 * * * * /path/to/script/updater.sh > /dev/null
-```
-
-Although this works on most all implementations of `crontab`, for more portability use this instead:
-
-```bash
-0,15,30,45 * * * * /path/to/script/updater.sh > /dev/null
-````
-
-**NOTE:** To gain access to the crontab list to edit and add entries, execute `crontab -e` at the terminal
-
-## Further notes
-
-The code is licensed under the GNU Public License, version 3.
-
-## Contribution
-
-If you like to contribute useful changes to the script, simply fork the project, apply your changes and make a pull request.
+Available options are:
+  -h             Display usage
+  -H HOST        YDNS host to update
+  -u USERNAME    YDNS username for authentication
+  -p PASSWORD    YDNS password for authentication
+  -i INTERFACE   Use the local IP address for the given interface
+  -v             Display version
+  -V             Enable verbose output
+  -4             use ipv4   (new add)
+  -6             use ipv6   (new add)
