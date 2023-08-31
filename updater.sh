@@ -44,6 +44,7 @@ usage () {
 	echo "Usage: $0 [options]"
 	echo ""
 	echo "Available options are:"
+ 	echo "  -f             Specify ipv6 perfix"
 	echo "  -h             Display usage"
 	echo "  -H HOST        YDNS host to update"
 	echo "  -u USERNAME    YDNS username for authentication"
@@ -51,8 +52,6 @@ usage () {
 	echo "  -i INTERFACE   Use the local IP address for the given interface"
 	echo "  -v             Display version"
 	echo "  -V             Enable verbose output"
- 	echo "  -4             use ipv4 (by default)"
-   	echo "  -6             use ipv6 addr"
 	exit 0
 }
 
@@ -63,8 +62,6 @@ update_ip_address () {
 	ret=
 
 	for host in $YDNS_HOST; do
-		
-
 	       	if [ "$ipv6" = "" ]; then
 			ret=`curl --basic \
 				-u "$YDNS_USER:$YDNS_PASSWD" \
@@ -108,7 +105,7 @@ ipv6=""
 local_interface_addr=
 custom_host=
 
-while getopts "hH:i:p:u:vV:6" opt; do
+while getopts "f:hH:i:p:u:vV" opt; do
 	case $opt in
 		h)
 			usage
@@ -137,9 +134,11 @@ while getopts "hH:i:p:u:vV:6" opt; do
 		V)
 			verbose=1
 			;;
-   		6)
+
+   		f)
 			ipv6=$OPTARG
 			;;
+
 	esac
 done
 
@@ -151,11 +150,13 @@ fi
 if [ "$local_interface_addr" != "" ]; then
 	# Retrieve current local IP address for a given interface
 
+    write_msg "matching ipv6 perfix: $ipv6"
+
     if hash ip 2>/dev/null; then
     	if [ "$ipv6" = "" ]; then
 		current_ip=$(ip addr | awk '/inet/ && /'${local_interface_addr}'/{sub(/\/.*$/,"",$2); print $2}')
   	else 
-   		current_ip=$(ifconfig '${local_interface_addr}' | grep ${ipv6} | awk '{print $3}' | awk -F'/' '{print $3}')
+   		current_ip=`ifconfig $local_interface_addr | grep $ipv6 | awk '{print $3}' | awk -F"/" '{print $1}'`
 	fi
         
     fi
