@@ -51,6 +51,8 @@ usage () {
 	echo "  -i INTERFACE   Use the local IP address for the given interface"
 	echo "  -v             Display version"
 	echo "  -V             Enable verbose output"
+ 	echo "  -4             use ipv4 (by default)"
+   	echo "  -6             use ipv6 addr"
 	exit 0
 }
 
@@ -61,10 +63,20 @@ update_ip_address () {
 	ret=
 
 	for host in $YDNS_HOST; do
-		ret=`curl --basic \
-			-u "$YDNS_USER:$YDNS_PASSWD" \
-			--silent \
-			https://ydns.io/api/v1/update/?host=${host}\&ip=${current_ip}`
+		
+
+	       	if [ "$ipv6" = "" ]; then
+			ret=`curl --basic \
+				-u "$YDNS_USER:$YDNS_PASSWD" \
+				--silent \
+				https://ydns.io/api/v1/update/?host=${host}\&ip=${current_ip}`
+	  	else 
+	   		ret=`curl --basic \
+				-u "$YDNS_USER:$YDNS_PASSWD" \
+				--silent \
+    				--ipv6 \
+				https://ydns.io/api/v1/update/?host=${host}\&ip=${current_ip}`
+		fi
 	done
 
 	echo ${ret//[[:space:]]/}
@@ -92,10 +104,11 @@ write_msg () {
 }
 
 verbose=0
+ipv6=""
 local_interface_addr=
 custom_host=
 
-while getopts "hH:i:p:u:vV" opt; do
+while getopts "hH:i:p:u:vV:6" opt; do
 	case $opt in
 		h)
 			usage
@@ -124,6 +137,9 @@ while getopts "hH:i:p:u:vV" opt; do
 		V)
 			verbose=1
 			;;
+   		6)
+			ipv6=$OPTARG
+			;;
 	esac
 done
 
@@ -136,7 +152,12 @@ if [ "$local_interface_addr" != "" ]; then
 	# Retrieve current local IP address for a given interface
 
     if hash ip 2>/dev/null; then
-        current_ip=$(ip addr | awk '/inet/ && /'${local_interface_addr}'/{sub(/\/.*$/,"",$2); print $2}')
+    	if [ "$ipv6" = "" ]; then
+		current_ip=$(ip addr | awk '/inet/ && /'${local_interface_addr}'/{sub(/\/.*$/,"",$2); print $2}')
+  	else 
+   		current_ip=$(ifconfig '${local_interface_addr}' | grep ${ipv6} | awk '{print $3}' | awk -F'/' '{print $3}')
+	fi
+        
     fi
 fi
 
